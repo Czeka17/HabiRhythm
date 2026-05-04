@@ -26,6 +26,7 @@ export const WeeklyProgressCard = ({ habits, checkIns }: WeeklyProgressCardProps
         ) : (
           <View style={styles.list}>
             {habits.map((habit) => {
+                const targetPerWeek = habit.frequency?.targetPerWeek ?? 1;
               const completedCount = getWeeklyHabitCompletionCount({
                 habitId: habit.id,
                 checkIns,
@@ -37,7 +38,7 @@ export const WeeklyProgressCard = ({ habits, checkIns }: WeeklyProgressCardProps
                   <View style={styles.itemHeader}>
                     <AppText>{habit.name}</AppText>
                     <AppText color={colors.textMuted}>
-                      {completedCount}/{habit.frequency.targetPerWeek}
+                      {completedCount}/{targetPerWeek}
                     </AppText>
                   </View>
 
@@ -47,7 +48,7 @@ export const WeeklyProgressCard = ({ habits, checkIns }: WeeklyProgressCardProps
                         styles.progressFill,
                         {
                           width: `${Math.min(
-                            (completedCount / habit.frequency.targetPerWeek) * 100,
+                            (completedCount / targetPerWeek) * 100,
                             100,
                           )}%`,
                         },

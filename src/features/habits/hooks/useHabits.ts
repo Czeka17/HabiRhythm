@@ -10,6 +10,7 @@ export const useHabits = () => {
   const restoreHabit = useHabitStore((state) => state.restoreHabit);
   const removeHabit = useHabitStore((state) => state.removeHabit);
   const hasHydrated = useHabitStore((state) => state.hasHydrated);
+  const recordAddictionRelapse = useHabitStore((state) => state.recordAddictionRelapse);
 
   const activeHabits = useMemo(() => {
     return habits.filter((habit) => !habit.isArchived);
@@ -28,6 +29,7 @@ export const useHabits = () => {
     archiveHabit,
     restoreHabit,
     removeHabit,
+    recordAddictionRelapse,
     hasHydrated
   };
 };

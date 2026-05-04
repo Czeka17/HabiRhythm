@@ -49,22 +49,23 @@ export const calculateWeeklySummary = ({
     return acc;
   }, createEmptyDaysByStatus());
 
-  const habitProgress = habits.map((habit) => {
+  const habitProgress = habits
+  .filter((habit) => habit.type === 'habit' && habit.frequency)
+  .map((habit) => {
+    const targetPerWeek = habit.frequency?.targetPerWeek ?? 1;
+
     const completedCount = getWeeklyHabitCompletionCount({
       habitId: habit.id,
       checkIns,
       date,
     });
 
-    const completionRate =
-      habit.frequency.targetPerWeek === 0
-        ? 0
-        : Math.min((completedCount / habit.frequency.targetPerWeek) * 100, 100);
+    const completionRate = Math.min((completedCount / targetPerWeek) * 100, 100);
 
     return {
       habitId: habit.id,
       habitName: habit.name,
-      targetPerWeek: habit.frequency.targetPerWeek,
+      targetPerWeek,
       completedCount,
       completionRate,
     };

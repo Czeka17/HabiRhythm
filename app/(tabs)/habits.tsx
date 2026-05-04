@@ -1,16 +1,44 @@
-import { StyleSheet, View } from 'react-native';
+import { useState, useRef } from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
-import { HabitForm } from '@/features/habits/components';
+import { HabitCard, HabitForm } from '@/features/habits/components';
 import { useHabits } from '@/features/habits/hooks';
-import { AppText, Card, Screen, SectionHeader } from '@/shared/components';
+import { Habit } from '@/features/habits/types';
+import { AppText, Button, Card, Screen, SectionHeader } from '@/shared/components';
 import { colors } from '@/shared/constants/colors';
 import { spacing } from '@/shared/constants/spacing';
 
 export default function HabitsRoute() {
-  const { activeHabits, addHabit } = useHabits();
+  const { activeHabits, addHabit, updateHabit, removeHabit, recordAddictionRelapse } = useHabits();
+    const scrollViewRef = useRef<ScrollView>(null);
+  const [habitToEdit, setHabitToEdit] = useState<Habit | null>(null);
+
+  const confirmDeleteHabit = (habit: Habit) => {
+    Alert.alert('Delete habit?', `Are you sure you want to delete "${habit.name}"?`, [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => removeHabit(habit.id),
+      },
+    ]);
+  };
+  const handleEditHabit = (habit: Habit) => {
+  setHabitToEdit(habit);
+
+  requestAnimationFrame(() => {
+    scrollViewRef.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
+  });
+};
 
   return (
-    <Screen scrollable>
+    <Screen scrollable scrollRef={scrollViewRef}>
       <View style={styles.container}>
         <SectionHeader
           title="Habits"
@@ -18,7 +46,39 @@ export default function HabitsRoute() {
         />
 
         <Card>
-          <HabitForm onSubmit={addHabit} />
+          <View style={styles.formHeader}>
+            <AppText variant="heading3">
+  {habitToEdit ? `Edit ${habitToEdit.name}` : 'Create habit'}
+</AppText>
+
+            {habitToEdit ? (
+              <Button variant="ghost" onPress={() => setHabitToEdit(null)}>
+                Cancel
+              </Button>
+            ) : null}
+          </View>
+
+          <HabitForm
+            initialValues={
+              habitToEdit
+                ? {
+                    name: habitToEdit.name,
+                    type: habitToEdit.type,
+                    targetPerWeek: habitToEdit.frequency?.targetPerWeek,
+                  }
+                : undefined
+            }
+            submitLabel={habitToEdit ? 'Save changes' : 'Add habit'}
+            onSubmit={(values) => {
+              if (habitToEdit) {
+                updateHabit(habitToEdit.id, values);
+                setHabitToEdit(null);
+                return;
+              }
+
+              addHabit(values);
+            }}
+          />
         </Card>
 
         <View style={styles.list}>
@@ -30,17 +90,13 @@ export default function HabitsRoute() {
             </Card>
           ) : (
             activeHabits.map((habit) => (
-              <Card key={habit.id}>
-                <View style={styles.habitCardContent}>
-                  <View>
-                    <AppText variant="heading3">{habit.name}</AppText>
-                    <AppText variant="bodySmall" color={colors.textMuted}>
-                      {habit.type === 'habit' ? 'Habit' : 'Avoid'} ·{' '}
-                      {habit.frequency.targetPerWeek}/week
-                    </AppText>
-                  </View>
-                </View>
-              </Card>
+              <HabitCard
+                key={habit.id}
+                habit={habit}
+                onEdit={handleEditHabit}
+                onDelete={confirmDeleteHabit}
+                onRelapse={(selectedHabit) => recordAddictionRelapse(selectedHabit.id)}
+              />
             ))
           )}
         </View>
@@ -53,10 +109,13 @@ const styles = StyleSheet.create({
   container: {
     gap: spacing.lg,
   },
+  formHeader: {
+    marginBottom: spacing.md,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   list: {
     gap: spacing.md,
-  },
-  habitCardContent: {
-    gap: spacing.sm,
   },
 });

@@ -31,9 +31,11 @@ export const CheckInHabitItem = ({
         <View style={styles.content}>
           <AppText variant="heading3">{title}</AppText>
 
-          <AppText variant="bodySmall" color={colors.textMuted}>
-            This week: {weeklyCompletionCount}/{habit.frequency.targetPerWeek}
-          </AppText>
+          {habit.type === 'habit' && habit.frequency ? (
+            <AppText variant="bodySmall" color={colors.textMuted}>
+                This week: {weeklyCompletionCount}/{habit.frequency.targetPerWeek}
+            </AppText>
+            ) : null}
         </View>
 
         <Button variant={isCompleted ? 'primary' : 'secondary'} onPress={onToggle} disabled={disabled}>
