@@ -19,3 +19,9 @@ export interface DailyCheckIn {
   createdAt: ISODateTimeString;
   updatedAt: ISODateTimeString;
 }
+export interface CreateDailyCheckInInput {
+  date: ISODateString;
+  moodRating: number;
+  habitResults: HabitResult[];
+  note?: string;
+}
