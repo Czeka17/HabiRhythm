@@ -1,4 +1,4 @@
-import { format, parseISO, startOfWeek, endOfWeek, isWithinInterval } from 'date-fns';
+import { format, parseISO, startOfWeek, endOfWeek, isWithinInterval, subDays } from 'date-fns';
 
 import { ISODateString } from '@/shared/types';
 
@@ -34,4 +34,14 @@ export const isDateInRange = ({
     start: parseISO(startDate),
     end: parseISO(endDate),
   });
+};
+export const getYesterdayISODate = (): ISODateString => {
+  return toISODate(subDays(new Date(), 1));
+};
+
+export const canEditCheckInDate = (date: ISODateString): boolean => {
+  const today = getCurrentISODate();
+  const yesterday = getYesterdayISODate();
+
+  return date === today || date === yesterday;
 };
