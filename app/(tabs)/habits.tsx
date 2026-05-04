@@ -1,7 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 
+import { HabitForm } from '@/features/habits/components';
 import { useHabits } from '@/features/habits/hooks';
-import { AppText, Button, Card, Screen, SectionHeader } from '@/shared/components';
+import { AppText, Card, Screen, SectionHeader } from '@/shared/components';
 import { colors } from '@/shared/constants/colors';
 import { spacing } from '@/shared/constants/spacing';
 
@@ -13,22 +14,16 @@ export default function HabitsRoute() {
       <View style={styles.container}>
         <SectionHeader
           title="Habits"
-          description="Track habits you want to build and addictions you want to avoid."
+          description="Create habits you want to build and things you want to avoid."
         />
 
-        <Button
-          onPress={() =>
-            addHabit({
-              name: 'Training',
-              type: 'habit',
-              targetPerWeek: 5,
-            })
-          }
-        >
-          Add test habit
-        </Button>
+        <Card>
+          <HabitForm onSubmit={addHabit} />
+        </Card>
 
         <View style={styles.list}>
+          <AppText variant="heading3">Your habits</AppText>
+
           {activeHabits.length === 0 ? (
             <Card>
               <AppText color={colors.textMuted}>No habits yet. Add your first one.</AppText>
@@ -40,7 +35,7 @@ export default function HabitsRoute() {
                   <View>
                     <AppText variant="heading3">{habit.name}</AppText>
                     <AppText variant="bodySmall" color={colors.textMuted}>
-                      {habit.type === 'habit' ? 'Habit' : 'Addiction'} ·{' '}
+                      {habit.type === 'habit' ? 'Habit' : 'Avoid'} ·{' '}
                       {habit.frequency.targetPerWeek}/week
                     </AppText>
                   </View>
