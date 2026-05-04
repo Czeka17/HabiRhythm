@@ -2,10 +2,10 @@ import { Text } from 'react-native';
 
 import { Screen } from '@/shared/components/Screen';
 
-export default function DashboardRoute() {
+export default function CheckInRoute() {
   return (
     <Screen>
-      <Text>habiRhythm Dashboard</Text>
+      <Text>Daily Check-in</Text>
     </Screen>
   );
 }
