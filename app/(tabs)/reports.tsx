@@ -1,11 +1,5 @@
-import { Text } from 'react-native';
-
-import { Screen } from '@/shared/components/Screen';
+import { WeeklySummaryScreen } from '@/features/reports/screens';
 
 export default function ReportsRoute() {
-  return (
-    <Screen>
-      <Text>Reports</Text>
-    </Screen>
-  );
+  return <WeeklySummaryScreen />;
 }
