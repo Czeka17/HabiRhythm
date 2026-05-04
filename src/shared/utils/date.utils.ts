@@ -1,0 +1,37 @@
+import { format, parseISO, startOfWeek, endOfWeek, isWithinInterval } from 'date-fns';
+
+import { ISODateString } from '@/shared/types';
+
+export const toISODate = (date: Date): ISODateString => {
+  return format(date, 'yyyy-MM-dd');
+};
+
+export const getCurrentISODate = (): ISODateString => {
+  return toISODate(new Date());
+};
+
+export const getWeekRange = (date: ISODateString) => {
+  const parsedDate = parseISO(date);
+
+  return {
+    startDate: toISODate(startOfWeek(parsedDate, { weekStartsOn: 1 })),
+    endDate: toISODate(endOfWeek(parsedDate, { weekStartsOn: 1 })),
+  };
+};
+
+export const isDateInRange = ({
+  date,
+  startDate,
+  endDate,
+}: {
+  date: ISODateString;
+  startDate: ISODateString;
+  endDate: ISODateString;
+}) => {
+  const parsedDate = parseISO(date);
+
+  return isWithinInterval(parsedDate, {
+    start: parseISO(startDate),
+    end: parseISO(endDate),
+  });
+};
