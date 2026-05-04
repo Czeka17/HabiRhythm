@@ -1,11 +1,5 @@
-import { Text } from 'react-native';
-
-import { Screen } from '@/shared/components/Screen';
+import { DashboardScreen } from '@/features/dashboard/screens';
 
 export default function DashboardRoute() {
-  return (
-    <Screen>
-      <Text>habiRhythm Dashboard</Text>
-    </Screen>
-  );
+  return <DashboardScreen />;
 }
