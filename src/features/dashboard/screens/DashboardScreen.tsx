@@ -1,17 +1,18 @@
 import { Alert, StyleSheet, View } from 'react-native';
-
+import { router } from 'expo-router';
 import {
   RecentCheckInsCard,
   TodayOverviewCard,
   WeeklyProgressCard,
 } from '@/features/dashboard/components';
+import { CalendarDay } from '@/features/calendar/types';
 import { useCheckIns } from '@/features/checkins/hooks';
 import { useHabits } from '@/features/habits/hooks';
 import { Screen, SectionHeader } from '@/shared/components';
 import { spacing } from '@/shared/constants/spacing';
-import { getCurrentISODate } from '@/shared/utils';
+import {canEditCheckInDate, getCurrentISODate } from '@/shared/utils';
 import { ContributionCalendar } from '@/features/calendar/components';
-import { getCalendarDays } from '@/features/calendar/utils';
+import { getCalendarDays, hasCalendarDayCheckIn } from '@/features/calendar/utils';
 
 export const DashboardScreen = () => {
   const { activeHabits } = useHabits();
@@ -25,6 +26,21 @@ export const DashboardScreen = () => {
         weeksCount: 4,
     });
 
+    const openCalendarDay = (date: string) => {
+    router.push({
+        pathname: '/check-in/[date]' as const,
+        params: { date },
+    });
+    };
+    const handleCalendarDayPress = (day: CalendarDay) => {
+        if (hasCalendarDayCheckIn(day) || canEditCheckInDate(day.date)) {
+            openCalendarDay(day.date);
+            return;
+        }
+
+        Alert.alert('No check-in', 'There is no check-in for this day.');
+    };
+
   return (
     <Screen scrollable>
       <View style={styles.container}>
@@ -34,17 +50,7 @@ export const DashboardScreen = () => {
         />
 
         <TodayOverviewCard todayCheckIn={todayCheckIn} />
-        <ContributionCalendar
-            days={calendarDays}
-            onDayPress={(day) => {
-                Alert.alert(
-                day.date,
-                day.status === 'empty'
-                    ? 'No check-in for this day.'
-                    : `Status: ${day.status}\nScore: ${day.score}/100`,
-                );
-            }}
-            />
+        <ContributionCalendar days={calendarDays} onDayPress={handleCalendarDayPress} />
 
         <WeeklyProgressCard habits={activeHabits} checkIns={sortedCheckIns} />
 
