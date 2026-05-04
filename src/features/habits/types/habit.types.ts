@@ -20,3 +20,10 @@ export interface Habit {
   createdAt: ISODateTimeString;
   updatedAt: ISODateTimeString;
 }
+export interface CreateHabitInput {
+  name: string;
+  type: HabitType;
+  targetPerWeek: number;
+  color?: string;
+  icon?: string;
+}
