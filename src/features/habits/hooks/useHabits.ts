@@ -9,6 +9,7 @@ export const useHabits = () => {
   const archiveHabit = useHabitStore((state) => state.archiveHabit);
   const restoreHabit = useHabitStore((state) => state.restoreHabit);
   const removeHabit = useHabitStore((state) => state.removeHabit);
+  const hasHydrated = useHabitStore((state) => state.hasHydrated);
 
   const activeHabits = useMemo(() => {
     return habits.filter((habit) => !habit.isArchived);
@@ -27,5 +28,6 @@ export const useHabits = () => {
     archiveHabit,
     restoreHabit,
     removeHabit,
+    hasHydrated
   };
 };
