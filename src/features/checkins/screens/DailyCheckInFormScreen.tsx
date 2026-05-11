@@ -20,14 +20,15 @@ interface DailyCheckInFormScreenProps {
 export const DailyCheckInFormScreen = ({ date }: DailyCheckInFormScreenProps) => {
   const { activeHabits } = useHabits();
   const { sortedCheckIns, addCheckIn } = useCheckIns();
-
+   const trackableHabits = useMemo(() => {
+    return activeHabits.filter((habit) => habit.type === 'habit');
+  }, [activeHabits]);
   const existingCheckIn = sortedCheckIns.find((checkIn) => checkIn.date === date);
   const isEditable = canEditCheckInDate(date);
-
   const [moodRating, setMoodRating] = useState(existingCheckIn?.moodRating ?? 5);
   const [note, setNote] = useState(existingCheckIn?.note ?? '');
   const [habitResults, setHabitResults] = useState<HabitResult[]>(() =>
-    activeHabits.map((habit) => {
+    trackableHabits.map((habit) => {
       const existingResult = existingCheckIn?.habitResults.find(
         (habitResult) => habitResult.habitId === habit.id,
       );
@@ -39,6 +40,7 @@ export const DailyCheckInFormScreen = ({ date }: DailyCheckInFormScreenProps) =>
     }),
   );
 
+
   useEffect(() => {
     setMoodRating(existingCheckIn?.moodRating ?? 5);
     setNote(existingCheckIn?.note ?? '');
@@ -48,7 +50,7 @@ export const DailyCheckInFormScreen = ({ date }: DailyCheckInFormScreenProps) =>
         currentResults.map((habitResult) => [habitResult.habitId, habitResult]),
       );
 
-      return activeHabits.map((habit) => {
+      return trackableHabits.map((habit) => {
         const savedResult = existingCheckIn?.habitResults.find(
           (habitResult) => habitResult.habitId === habit.id,
         );
@@ -61,7 +63,7 @@ export const DailyCheckInFormScreen = ({ date }: DailyCheckInFormScreenProps) =>
         };
       });
     });
-  }, [activeHabits, existingCheckIn]);
+  }, [trackableHabits, existingCheckIn]);
 
   const habitResultsById = useMemo(() => {
     return new Map(habitResults.map((habitResult) => [habitResult.habitId, habitResult]));
@@ -140,14 +142,14 @@ export const DailyCheckInFormScreen = ({ date }: DailyCheckInFormScreenProps) =>
         <View style={styles.section}>
           <AppText variant="heading3">Habits</AppText>
 
-          {activeHabits.length === 0 ? (
+          {trackableHabits.length === 0 ? (
             <Card>
               <AppText color={colors.textMuted}>
                 No habits yet. Add habits first to track them here.
               </AppText>
             </Card>
           ) : (
-            activeHabits.map((habit) => {
+            trackableHabits.map((habit) => {
               const result = habitResultsById.get(habit.id);
 
               return (
@@ -160,6 +162,7 @@ export const DailyCheckInFormScreen = ({ date }: DailyCheckInFormScreenProps) =>
                     checkIns: sortedCheckIns,
                     date,
                   })}
+                  disabled={!isEditable}
                   onToggle={() => toggleHabitResult(habit.id)}
                 />
               );

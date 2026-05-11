@@ -1,4 +1,4 @@
-import { format, parseISO, startOfWeek, endOfWeek, isWithinInterval, subDays } from 'date-fns';
+import { endOfMonth, format, parseISO, startOfWeek, endOfWeek, isWithinInterval, subDays, startOfMonth } from 'date-fns';
 
 import { ISODateString } from '@/shared/types';
 
@@ -44,4 +44,13 @@ export const canEditCheckInDate = (date: ISODateString): boolean => {
   const yesterday = getYesterdayISODate();
 
   return date === today || date === yesterday;
+};
+
+export const getMonthRange = (date: ISODateString) => {
+  const parsedDate = parseISO(date);
+
+  return {
+    startDate: toISODate(startOfMonth(parsedDate)),
+    endDate: toISODate(endOfMonth(parsedDate)),
+  };
 };

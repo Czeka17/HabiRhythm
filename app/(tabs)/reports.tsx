@@ -1,5 +1,5 @@
-import { WeeklySummaryScreen } from '@/features/reports/screens';
+import { ReportsScreen } from '@/features/reports/screens';
 
 export default function ReportsRoute() {
-  return <WeeklySummaryScreen />;
+  return <ReportsScreen />;
 }

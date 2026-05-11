@@ -5,20 +5,20 @@ import { useHabits } from '@/features/habits/hooks';
 import {
   HabitProgressList,
   StatusBreakdownCard,
-  SummaryMetricCard,
   SummaryBarChart,
+  SummaryMetricCard,
 } from '@/features/reports/components';
-import { calculateWeeklySummary } from '@/features/reports/utils';
+import { calculateMonthlySummary } from '@/features/reports/utils';
 import { AppText, Card, Screen, SectionHeader } from '@/shared/components';
 import { colors } from '@/shared/constants/colors';
 import { spacing } from '@/shared/constants/spacing';
 import { getCurrentISODate } from '@/shared/utils';
 
-export const WeeklySummaryScreen = () => {
+export const MonthlySummaryScreen = () => {
   const { activeHabits } = useHabits();
   const { sortedCheckIns } = useCheckIns();
 
-  const summary = calculateWeeklySummary({
+  const summary = calculateMonthlySummary({
     date: getCurrentISODate(),
     habits: activeHabits,
     checkIns: sortedCheckIns,
@@ -29,15 +29,13 @@ export const WeeklySummaryScreen = () => {
   return (
     <Screen scrollable>
       <View style={styles.container}>
-        <SectionHeader
-          title="Weekly summary"
-          description={`${summary.weekStartDate} - ${summary.weekEndDate}`}
-        />
+        <SectionHeader title="Monthly summary" description={summary.month} />
 
         {summary.totalCheckIns === 0 ? (
           <Card>
             <AppText color={colors.textMuted}>
-              No check-ins this week yet. Complete a daily check-in to generate your weekly summary.
+              No check-ins this month yet. Complete daily check-ins to generate your monthly
+              summary.
             </AppText>
           </Card>
         ) : null}
@@ -46,31 +44,28 @@ export const WeeklySummaryScreen = () => {
           <SummaryMetricCard
             label="Average mood"
             value={`${summary.averageMoodRating}/10`}
-            description="Based on your check-ins"
+            description="This month"
           />
 
           <SummaryMetricCard
             label="Average score"
             value={`${summary.averageScore}/100`}
-            description="Mood + habit progress"
+            description="This month"
           />
         </View>
 
         <View style={styles.metricsGrid}>
-          <SummaryMetricCard
-            label="Check-ins"
-            value={summary.totalCheckIns}
-            description="This week"
-          />
+          <SummaryMetricCard label="Check-ins" value={summary.totalCheckIns} description="This month" />
 
           <SummaryMetricCard
-            label="Best status"
-            value={getBestStatusLabel(summary.daysByStatus)}
-            description="Most common day type"
+            label="Best day"
+            value={summary.bestDay ?? '-'}
+            description={summary.worstDay ? `Worst: ${summary.worstDay}` : 'No data yet'}
           />
         </View>
+
         <SummaryBarChart
-          title="Weekly day chart"
+          title="Monthly day chart"
           items={[
             {
               label: 'Great days',
@@ -96,23 +91,6 @@ export const WeeklySummaryScreen = () => {
       </View>
     </Screen>
   );
-};
-
-const getBestStatusLabel = (daysByStatus: Record<'great' | 'average' | 'bad', number>) => {
-  const entries = Object.entries(daysByStatus).sort((a, b) => b[1] - a[1]);
-  const [status, count] = entries[0];
-
-  if (count === 0) {
-    return '-';
-  }
-
-  const labels = {
-    great: 'Great',
-    average: 'Average',
-    bad: 'Bad',
-  } as const;
-
-  return labels[status as keyof typeof labels];
 };
 
 const styles = StyleSheet.create({
