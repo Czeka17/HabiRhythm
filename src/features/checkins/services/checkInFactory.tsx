@@ -4,9 +4,11 @@ import { createEntityId } from '@/shared/utils';
 
 export const createDailyCheckIn = (input: CreateDailyCheckInInput): DailyCheckIn => {
   const now = new Date().toISOString();
+
   const score = calculateDailyScore({
     moodRating: input.moodRating,
     habitResults: input.habitResults,
+    avoidanceFailures: input.avoidanceFailures,
   });
 
   return {
@@ -14,6 +16,7 @@ export const createDailyCheckIn = (input: CreateDailyCheckInInput): DailyCheckIn
     date: input.date,
     moodRating: input.moodRating,
     habitResults: input.habitResults,
+    avoidanceFailures: input.avoidanceFailures ?? [],
     note: input.note?.trim(),
     score,
     status: getDayStatus(score),

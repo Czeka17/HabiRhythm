@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { useCheckIns } from '@/features/checkins/hooks';
 import { AppText, Button, Card, Screen, SectionHeader } from '@/shared/components';
+import { getCheckInAvoidanceFailureDescription } from '@/features/checkins/utils';
 import { colors } from '@/shared/constants/colors';
 import { spacing } from '@/shared/constants/spacing';
 import { canEditCheckInDate, getCurrentISODate, getYesterdayISODate } from '@/shared/utils';
@@ -27,11 +28,11 @@ export const DailyCheckInListScreen = () => {
   const uniqueVisibleDates = Array.from(new Set(visibleDates));
 
   const openCheckIn = (date: string) => {
-  router.push({
-    pathname: '/check-in/[date]',
-    params: { date },
-  });
-};
+    router.push({
+      pathname: '/check-in/[date]',
+      params: { date },
+    });
+  };
 
   return (
     <Screen scrollable>
@@ -69,16 +70,28 @@ export const DailyCheckInListScreen = () => {
                     <AppText variant="heading3">{date}</AppText>
 
                     {checkIn ? (
-                      <AppText variant="bodySmall" color={colors.textMuted}>
-                        Mood {checkIn.moodRating}/10 · Score {checkIn.score}/100 · {checkIn.status}
-                      </AppText>
+                      <>
+                        <AppText variant="bodySmall" color={colors.textMuted}>
+                          Mood {checkIn.moodRating}/10 · Score {checkIn.score}/100 ·{' '}
+                          {checkIn.status}
+                        </AppText>
+
+                        {getCheckInAvoidanceFailureDescription(checkIn) ? (
+                          <AppText variant="caption" color={colors.danger}>
+                            {getCheckInAvoidanceFailureDescription(checkIn)}
+                          </AppText>
+                        ) : null}
+                      </>
                     ) : (
                       <AppText variant="bodySmall" color={colors.textMuted}>
                         No check-in yet
                       </AppText>
                     )}
 
-                    <AppText variant="caption" color={isEditable ? colors.primary : colors.textMuted}>
+                    <AppText
+                      variant="caption"
+                      color={isEditable ? colors.primary : colors.textMuted}
+                    >
                       {isEditable ? 'Editable' : 'Read-only'}
                     </AppText>
                   </View>

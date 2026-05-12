@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { createDailyCheckIn } from '@/features/checkins/services';
-import { CreateDailyCheckInInput, DailyCheckIn } from '@/features/checkins/types';
+import { AvoidanceFailure, CreateDailyCheckInInput, DailyCheckIn } from '@/features/checkins/types';
 import { asyncStorage } from '@/storage';
 
 interface CheckInState {
@@ -11,6 +11,7 @@ interface CheckInState {
   updateCheckIn: (date: DailyCheckIn['date'], input: Partial<CreateDailyCheckInInput>) => void;
   removeCheckIn: (date: DailyCheckIn['date']) => void;
   getCheckInByDate: (date: DailyCheckIn['date']) => DailyCheckIn | undefined;
+  recordAvoidanceFailure: (date: DailyCheckIn['date'], failure: AvoidanceFailure) => void;
   hasHydrated: boolean;
   setHasHydrated: (value: boolean) => void;
 }
@@ -23,7 +24,7 @@ export const useCheckInStore = create<CheckInState>()(
 
       setHasHydrated: (value) => {
         set({
-            hasHydrated: value,
+          hasHydrated: value,
         });
       },
       addCheckIn: (input) => {
@@ -39,6 +40,8 @@ export const useCheckInStore = create<CheckInState>()(
                         date: input.date,
                         moodRating: input.moodRating,
                         habitResults: input.habitResults,
+                        avoidanceFailures:
+                          input.avoidanceFailures ?? checkIn.avoidanceFailures ?? [],
                         note: input.note,
                       }),
                       id: checkIn.id,
@@ -67,6 +70,7 @@ export const useCheckInStore = create<CheckInState>()(
               date: input.date ?? checkIn.date,
               moodRating: input.moodRating ?? checkIn.moodRating,
               habitResults: input.habitResults ?? checkIn.habitResults,
+              avoidanceFailures: input.avoidanceFailures ?? checkIn.avoidanceFailures ?? [],
               note: input.note ?? checkIn.note,
             };
 
@@ -84,6 +88,57 @@ export const useCheckInStore = create<CheckInState>()(
         set((state) => ({
           checkIns: state.checkIns.filter((checkIn) => checkIn.date !== date),
         }));
+      },
+
+      recordAvoidanceFailure: (date, failure) => {
+        set((state) => {
+          const existingCheckIn = state.checkIns.find((checkIn) => checkIn.date === date);
+
+          if (!existingCheckIn) {
+            return {
+              checkIns: [
+                ...state.checkIns,
+                createDailyCheckIn({
+                  date,
+                  moodRating: 5,
+                  habitResults: [],
+                  avoidanceFailures: [failure],
+                  note: undefined,
+                }),
+              ],
+            };
+          }
+
+          const existingFailures = existingCheckIn.avoidanceFailures ?? [];
+          const alreadyRecorded = existingFailures.some(
+            (existingFailure) => existingFailure.habitId === failure.habitId,
+          );
+
+          const nextFailures = alreadyRecorded
+            ? existingFailures.map((existingFailure) =>
+                existingFailure.habitId === failure.habitId ? failure : existingFailure,
+              )
+            : [...existingFailures, failure];
+
+          return {
+            checkIns: state.checkIns.map((checkIn) =>
+              checkIn.date === date
+                ? {
+                    ...createDailyCheckIn({
+                      date: checkIn.date,
+                      moodRating: checkIn.moodRating,
+                      habitResults: checkIn.habitResults,
+                      avoidanceFailures: nextFailures,
+                      note: checkIn.note,
+                    }),
+                    id: checkIn.id,
+                    createdAt: checkIn.createdAt,
+                    updatedAt: new Date().toISOString(),
+                  }
+                : checkIn,
+            ),
+          };
+        });
       },
 
       getCheckInByDate: (date) => {

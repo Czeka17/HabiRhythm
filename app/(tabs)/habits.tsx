@@ -2,6 +2,8 @@ import { useState, useRef } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 import { HabitCard, HabitForm } from '@/features/habits/components';
+import { useCheckIns } from '@/features/checkins/hooks';
+import { getCurrentISODate } from '@/shared/utils';
 import { useHabits } from '@/features/habits/hooks';
 import { Habit } from '@/features/habits/types';
 import { AppText, Button, Card, Screen, SectionHeader } from '@/shared/components';
@@ -10,8 +12,24 @@ import { spacing } from '@/shared/constants/spacing';
 
 export default function HabitsRoute() {
   const { activeHabits, addHabit, updateHabit, removeHabit, recordAddictionRelapse } = useHabits();
-    const scrollViewRef = useRef<ScrollView>(null);
+  const { recordAvoidanceFailure } = useCheckIns();
+  const scrollViewRef = useRef<ScrollView>(null);
   const [habitToEdit, setHabitToEdit] = useState<Habit | null>(null);
+
+  const handleRelapse = (habit: Habit) => {
+    recordAddictionRelapse(habit.id);
+
+    recordAvoidanceFailure(getCurrentISODate(), {
+      habitId: habit.id,
+      habitName: habit.name,
+      occurredAt: new Date().toISOString(),
+    });
+
+    Alert.alert(
+      'Relapse recorded',
+      `Your streak for "${habit.name}" has been reset and today's score has been updated.`,
+    );
+  };
 
   const confirmDeleteHabit = (habit: Habit) => {
     Alert.alert('Delete habit?', `Are you sure you want to delete "${habit.name}"?`, [
@@ -27,15 +45,15 @@ export default function HabitsRoute() {
     ]);
   };
   const handleEditHabit = (habit: Habit) => {
-  setHabitToEdit(habit);
+    setHabitToEdit(habit);
 
-  requestAnimationFrame(() => {
-    scrollViewRef.current?.scrollTo({
-      y: 0,
-      animated: true,
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollTo({
+        y: 0,
+        animated: true,
+      });
     });
-  });
-};
+  };
 
   return (
     <Screen scrollable scrollRef={scrollViewRef}>
@@ -48,8 +66,8 @@ export default function HabitsRoute() {
         <Card>
           <View style={styles.formHeader}>
             <AppText variant="heading3">
-  {habitToEdit ? `Edit ${habitToEdit.name}` : 'Create habit'}
-</AppText>
+              {habitToEdit ? `Edit ${habitToEdit.name}` : 'Create habit'}
+            </AppText>
 
             {habitToEdit ? (
               <Button variant="ghost" onPress={() => setHabitToEdit(null)}>
@@ -95,7 +113,7 @@ export default function HabitsRoute() {
                 habit={habit}
                 onEdit={handleEditHabit}
                 onDelete={confirmDeleteHabit}
-                onRelapse={(selectedHabit) => recordAddictionRelapse(selectedHabit.id)}
+                onRelapse={handleRelapse}
               />
             ))
           )}

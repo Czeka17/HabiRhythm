@@ -7,6 +7,7 @@ export const useCheckIns = () => {
   const addCheckIn = useCheckInStore((state) => state.addCheckIn);
   const updateCheckIn = useCheckInStore((state) => state.updateCheckIn);
   const removeCheckIn = useCheckInStore((state) => state.removeCheckIn);
+  const recordAvoidanceFailure = useCheckInStore((state) => state.recordAvoidanceFailure);
   const hasHydrated = useCheckInStore((state) => state.hasHydrated);
 
   const sortedCheckIns = useMemo(() => {
@@ -21,6 +22,7 @@ export const useCheckIns = () => {
     addCheckIn,
     updateCheckIn,
     removeCheckIn,
+    recordAvoidanceFailure,
     hasHydrated,
   };
 };

@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { DailyCheckIn } from '@/features/checkins/types';
-import { getDayStatusColor, getDayStatusLabel } from '@/features/checkins/utils';
+import { getDayStatusColor, getDayStatusLabel, getCheckInAvoidanceFailureDescription  } from '@/features/checkins/utils';
 import { AppText, Button, Card } from '@/shared/components';
 import { colors } from '@/shared/constants/colors';
 import { radius } from '@/shared/constants/radius';
@@ -16,12 +16,16 @@ interface TodayOverviewCardProps {
 export const TodayOverviewCard = ({ todayCheckIn }: TodayOverviewCardProps) => {
   const today = getCurrentISODate();
 
+  const avoidanceFailureDescription = todayCheckIn
+    ? getCheckInAvoidanceFailureDescription(todayCheckIn)
+    : null;
+
   const openTodayCheckIn = () => {
-  router.push({
-    pathname: '/check-in/[date]' as const,
-    params: { date: today },
-  });
-};
+    router.push({
+      pathname: '/check-in/[date]' as const,
+      params: { date: today },
+    });
+  };
 
   return (
     <Card>
@@ -54,6 +58,12 @@ export const TodayOverviewCard = ({ todayCheckIn }: TodayOverviewCardProps) => {
               Mood {todayCheckIn.moodRating}/10 · Score {todayCheckIn.score}/100
             </AppText>
 
+            {avoidanceFailureDescription ? (
+              <AppText variant="bodySmall" color={colors.danger}>
+                {avoidanceFailureDescription}
+              </AppText>
+            ) : null}
+
             {todayCheckIn.note ? (
               <AppText variant="bodySmall" color={colors.textMuted}>
                 “{todayCheckIn.note}”
@@ -61,9 +71,7 @@ export const TodayOverviewCard = ({ todayCheckIn }: TodayOverviewCardProps) => {
             ) : null}
           </View>
         ) : (
-          <AppText color={colors.textMuted}>
-            You have not completed today’s check-in yet.
-          </AppText>
+          <AppText color={colors.textMuted}>You have not completed today’s check-in yet.</AppText>
         )}
 
         <Button onPress={openTodayCheckIn}>

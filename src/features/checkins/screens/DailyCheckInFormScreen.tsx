@@ -5,7 +5,10 @@ import { Alert, StyleSheet, View } from 'react-native';
 import { CheckInHabitItem, MoodRatingSelector } from '@/features/checkins/components';
 import { useCheckIns } from '@/features/checkins/hooks';
 import { HabitResult } from '@/features/checkins/types';
-import { getWeeklyHabitCompletionCount } from '@/features/checkins/utils';
+import {
+  getWeeklyHabitCompletionCount,
+  getCheckInAvoidanceFailureDescription,
+} from '@/features/checkins/utils';
 import { useHabits } from '@/features/habits/hooks';
 import { AppText, Button, Card, Screen, SectionHeader, TextField } from '@/shared/components';
 import { colors } from '@/shared/constants/colors';
@@ -20,10 +23,13 @@ interface DailyCheckInFormScreenProps {
 export const DailyCheckInFormScreen = ({ date }: DailyCheckInFormScreenProps) => {
   const { activeHabits } = useHabits();
   const { sortedCheckIns, addCheckIn } = useCheckIns();
-   const trackableHabits = useMemo(() => {
+  const trackableHabits = useMemo(() => {
     return activeHabits.filter((habit) => habit.type === 'habit');
   }, [activeHabits]);
   const existingCheckIn = sortedCheckIns.find((checkIn) => checkIn.date === date);
+  const avoidanceFailureDescription = existingCheckIn
+    ? getCheckInAvoidanceFailureDescription(existingCheckIn)
+    : null;
   const isEditable = canEditCheckInDate(date);
   const [moodRating, setMoodRating] = useState(existingCheckIn?.moodRating ?? 5);
   const [note, setNote] = useState(existingCheckIn?.note ?? '');
@@ -39,7 +45,6 @@ export const DailyCheckInFormScreen = ({ date }: DailyCheckInFormScreenProps) =>
       };
     }),
   );
-
 
   useEffect(() => {
     setMoodRating(existingCheckIn?.moodRating ?? 5);
@@ -96,6 +101,7 @@ export const DailyCheckInFormScreen = ({ date }: DailyCheckInFormScreenProps) =>
       date,
       moodRating,
       habitResults,
+      avoidanceFailures: existingCheckIn?.avoidanceFailures ?? [],
       note,
     });
 
@@ -131,6 +137,11 @@ export const DailyCheckInFormScreen = ({ date }: DailyCheckInFormScreenProps) =>
                 Mood {existingCheckIn.moodRating}/10 · Score {existingCheckIn.score}/100 ·{' '}
                 {existingCheckIn.status}
               </AppText>
+              {avoidanceFailureDescription ? (
+                <AppText variant="bodySmall" color={colors.danger}>
+                  {avoidanceFailureDescription}
+                </AppText>
+              ) : null}
             </View>
           </Card>
         ) : null}

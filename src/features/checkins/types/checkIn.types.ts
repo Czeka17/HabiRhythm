@@ -10,11 +10,12 @@ export interface HabitResult {
 
 export interface DailyCheckIn {
   id: EntityId;
-  date: ISODateString; // YYYY-MM-DD
-  moodRating: number; // 1-10
+  date: ISODateString;
+  moodRating: number;
   habitResults: HabitResult[];
+  avoidanceFailures?: AvoidanceFailure[];
   note?: string;
-  score: number; // 0-100
+  score: number;
   status: DayStatus;
   createdAt: ISODateTimeString;
   updatedAt: ISODateTimeString;
@@ -23,5 +24,11 @@ export interface CreateDailyCheckInInput {
   date: ISODateString;
   moodRating: number;
   habitResults: HabitResult[];
+  avoidanceFailures?: AvoidanceFailure[];
   note?: string;
+}
+export interface AvoidanceFailure {
+  habitId: Habit['id'];
+  habitName: Habit['name'];
+  occurredAt: ISODateTimeString;
 }
