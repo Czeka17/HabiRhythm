@@ -19,7 +19,9 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" color={color} size={size} />
+          ),
         }}
       />
 
@@ -37,7 +39,9 @@ export default function TabsLayout() {
         name="habits"
         options={{
           title: 'Habits',
-          tabBarIcon: ({ color, size }) => <Ionicons name="repeat-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="repeat-outline" color={color} size={size} />
+          ),
         }}
       />
 
@@ -45,7 +49,18 @@ export default function TabsLayout() {
         name="reports"
         options={{
           title: 'Reports',
-          tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="stats-chart-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="missions"
+        options={{
+          title: 'Missions',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="flag-outline" color={color} size={size} />
+          ),
         }}
       />
       <Tabs.Screen

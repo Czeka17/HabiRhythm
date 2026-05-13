@@ -1,4 +1,14 @@
-import { endOfMonth, format, parseISO, startOfWeek, endOfWeek, isWithinInterval, subDays, startOfMonth } from 'date-fns';
+import {
+  addDays,
+  endOfMonth,
+  format,
+  parseISO,
+  startOfWeek,
+  endOfWeek,
+  isWithinInterval,
+  subDays,
+  startOfMonth,
+} from 'date-fns';
 
 import { ISODateString } from '@/shared/types';
 
@@ -53,4 +63,23 @@ export const getMonthRange = (date: ISODateString) => {
     startDate: toISODate(startOfMonth(parsedDate)),
     endDate: toISODate(endOfMonth(parsedDate)),
   };
+};
+export const getEndOfDayISODate = (date: ISODateString): ISODateString => {
+  return date;
+};
+
+export const getEndOfCurrentWeekISODate = (): ISODateString => {
+  return toISODate(endOfWeek(new Date(), { weekStartsOn: 1 }));
+};
+
+export const getEndOfCurrentMonthISODate = (): ISODateString => {
+  return toISODate(endOfMonth(new Date()));
+};
+
+export const isISODateAfter = (firstDate: ISODateString, secondDate: ISODateString): boolean => {
+  return parseISO(firstDate).getTime() > parseISO(secondDate).getTime();
+};
+
+export const getTomorrowISODate = (): ISODateString => {
+  return toISODate(addDays(new Date(), 1));
 };
